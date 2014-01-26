@@ -21,9 +21,9 @@ grunt.initConfig({
     cacheExpire: 604800000,
     versionTemplate: "<%= url.href.replace(url.ext, '.__' + version + '__' + url.ext) %>",
     builder: [
-        ["somefile", require("grunt-crane-builder/builder/nothing")],
-    ],
-};
+        ["somefile", require("grunt-crane-builder/builder/nothing")]
+    ]
+});
 
 grunt.loadNpmTasks('grunt-crane-builder');
 ```

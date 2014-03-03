@@ -102,6 +102,7 @@ module.exports = function ( grunt ) {
         /* 开始编译 */
         report.build = {};
         report.fail  = {};
+        report.warning = {};
 
         // 将config.json移到到每次编译的末尾
         if (files.indexOf('config.json') !== -1) {
@@ -146,7 +147,7 @@ module.exports = function ( grunt ) {
                 defer = promise.Deferred().reject(ex.message + ex.stack.toString()).promise();
             }
             return defer
-                .done(function (outputFileList) {
+                .done(function (outputFileList, info) {
                     if (builder.isCmbFile && builder.isCmbFile()) {
                         grunt.db.files[file].children = builder.getChildren(file);
                     }
@@ -165,6 +166,11 @@ module.exports = function ( grunt ) {
                         grunt.db.files[file].timestamp = timestamp;
                         report.build[file] = {'timestamp' : timestamp};
                     });
+
+                    if (info) {
+                        report[info.type][file] = info.text;
+                    }
+
                     bar.tick();
                 })
                 .fail(function (msg) {
@@ -174,12 +180,24 @@ module.exports = function ( grunt ) {
 
         promise.when(defers)
             .all.finish(function () {
+                var warningCount = Object.keys(report.warning).length;
                 var failCount = Object.keys(report.fail).length;
 
                 grunt.log.write('Compiled %d Files, ', defers.length);
                 console.timeEnd('Spent');
                 grunt.db.save();
                 grunt.file.write('reports/' + report.token, JSON.stringify(report, null, 4));
+
+                if (warningCount) {
+                    grunt.log.writeln('');
+                    grunt.log.writeln('');
+                    grunt.log.writeln('Build finish with %d Warnings'.red, warningCount);
+                    for (var index in report.warning) {
+                      grunt.log.writeln('>>', report.warning[index].bold.magenta + ' in ' + index.cyan);
+                    }
+                    grunt.log.writeln('');
+                    grunt.log.writeln('');
+                }
 
                 if (failCount) {
                     grunt.log.writeln('');

@@ -1,7 +1,7 @@
 {
   "name": "grunt-crane-builder",
   "description": "Grunt Crane Builder",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "homepage": "https://github.com/witcher42/grunt-crane-builder",
   "author": {
     "name": "Witcher42",
@@ -41,7 +41,8 @@
     "uglify-js": "*",
     "async": "*",
     "gaze": "~0.4.3",
-    "progress": "~1.1.2"
+    "progress": "~1.1.2",
+    "MD5": "1.2.1"
   },
   "keywords": [
     "gruntplugin"

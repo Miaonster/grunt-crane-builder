@@ -7,6 +7,10 @@ module.exports = function ( grunt ) {
     var dest      = grunt.config('dest');
     var taskToken = grunt.option('token') || Date.now();
 
+    process.on('uncaughtException', function(err) {
+        console.log('Caught exception: ' + err, err.stack);
+    });
+
     try {
         grunt.db = grunt.file.readJSON('db.json');
     } catch (ex) {

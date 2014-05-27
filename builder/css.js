@@ -1,10 +1,12 @@
-var path   = require('path');
-var URL    = require('url');
-var rework = require('rework');
+var path    = require('path');
+var URL     = require('url');
+var rework  = require('rework');
 var promise = require('../util/promise');
+var MD5     = require('MD5');
+var fs      = require('fs');
 
 var HTTP_FILE_RE = /^(https?:\/\/.*?\/)/;
-var CMB_CSS_RE = /\.cmb.css/;
+var CMB_CSS_RE   = /\.cmb.css/;
 
 module.exports = function (grunt) {
     var src  = grunt.config('src');
@@ -100,7 +102,10 @@ module.exports = function (grunt) {
         content = rework(content)
             .use(rework.url(function (url) {
                 var match = url.match(HTTP_FILE_RE);
-                var filepath;
+                var filepath,
+                    fullpath,
+                    buffer;
+
                 if (match && rootpaths.indexOf(match[1]) === -1) {
                     return url;
                 }
@@ -112,10 +117,15 @@ module.exports = function (grunt) {
                     filepath = path.normalize(path.dirname(self.id) + '/' + url);
                 }
                 filepath = URL.parse(filepath).pathname;
+                fullpath = src + filepath;
 
-                var version = +require('fs').statSync(src + filepath).mtime % grunt.config('cacheExpire');
+                try {
+                    buffer = fs.readFileSync(fullpath);
+                } catch(ex) {
+                    return defer.reject(ex + '\n\tImage no found: ' + url);
+                }
 
-                return url + '?v=' + version;
+                return url + '?v=' + MD5(buffer).substr(0, 8);
             }))
             .toString();
 

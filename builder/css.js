@@ -1,17 +1,18 @@
-var path    = require('path');
-var URL     = require('url');
-var rework  = require('rework');
-var promise = require('../util/promise');
-var MD5     = require('MD5');
-var fs      = require('fs');
+var path    = require('path'),
+    URL     = require('url'),
+    rework  = require('rework'),
+    promise = require('../util/promise'),
+    MD5     = require('MD5'),
+    CSS     = require('css'),
+    fs      = require('fs');
 
 var HTTP_FILE_RE = /^(https?:\/\/.*?\/)/;
 var CMB_CSS_RE   = /\.cmb.css/;
 
 module.exports = function (grunt) {
-    var src  = grunt.config('src');
-    var dest = grunt.config('dest');
-    var minify = grunt.config('compress');
+    var src       = grunt.config('src');
+    var dest      = grunt.config('dest');
+    var minify    = grunt.option('compress');
     var rootpaths = grunt.config('rootpaths');
 
     function Builder (id) {
@@ -128,6 +129,13 @@ module.exports = function (grunt) {
                 return url + '?v=' + MD5(buffer).substr(0, 8);
             }))
             .toString();
+
+        if (minify) {
+          content = CSS.parse(content);
+          content = CSS.stringify(content, { compress: true })
+        }
+
+        console.log(minify);
 
         grunt.file.write(dest + this.id, content);
 

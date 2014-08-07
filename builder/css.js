@@ -135,8 +135,6 @@ module.exports = function (grunt) {
           content = CSS.stringify(content, { compress: true })
         }
 
-        console.log(minify);
-
         grunt.file.write(dest + this.id, content);
 
         return defer.resolve([this.id]);
